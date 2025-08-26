@@ -10,6 +10,7 @@ import { CreateServicePage } from './pages/CreateServicePage';
 import { CleanersPage } from './pages/CleanersPage';
 import { OrdersPage } from './pages/OrdersPage';
 import { TestPage } from './pages/TestPage';
+import { TestAuthPage } from './pages/TestAuthPage';
 
 function App() {
   return (
@@ -32,8 +33,9 @@ function App() {
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
         </Route>
         
-        {/* Тестовая страница */}
+        {/* Тестовые страницы */}
         <Route path="/test" element={<TestPage />} />
+        <Route path="/test-auth" element={<TestAuthPage />} />
         
         {/* Редирект по умолчанию */}
         <Route path="/" element={<Navigate to="/admin/dashboard" replace />} />

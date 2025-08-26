@@ -25,7 +25,7 @@ class ApiClient {
   private baseURL: string;
 
   constructor() {
-    this.baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+    this.baseURL = import.meta.env.VITE_API_BASE_URL || 'https://api.paulcleanwa.com';
     this.client = axios.create({
       baseURL: this.baseURL,
       headers: {
@@ -67,6 +67,8 @@ class ApiClient {
     const response: AxiosResponse<AdminLoginResponse> = await this.client.post('/api/admin/login', data);
     return response.data;
   }
+
+
 
   // Service methods
   async getServices(): Promise<ServiceResponse[]> {

@@ -14,7 +14,7 @@ interface LoginFormData {
 export const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -31,8 +31,12 @@ export const LoginPage: React.FC = () => {
     try {
       await login(data);
       toast.success('Успешный вход в систему');
-      navigate(from, { replace: true });
+      
+      // Перенаправляем на dashboard
+      navigate('/admin/dashboard', { replace: true });
+      
     } catch (error: any) {
+      console.error('LoginPage: Ошибка входа:', error);
       const message = error.response?.data?.message || 'Ошибка входа в систему';
       toast.error(message);
     } finally {

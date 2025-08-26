@@ -51,7 +51,7 @@ yarn install
 Создайте файл `.env.local` в корне проекта:
 
 ```env
-VITE_API_BASE_URL=http://localhost:8000
+VITE_API_BASE_URL=https://api.paulcleanwa.com
 ```
 
 ### 4. Запуск в режиме разработки
@@ -62,7 +62,7 @@ npm run dev
 yarn dev
 ```
 
-Приложение будет доступно по адресу: http://localhost:3000
+Приложение будет доступно по адресу: http://localhost:8080
 
 ### 5. Сборка для продакшена
 

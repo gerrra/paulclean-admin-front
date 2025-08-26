@@ -31,9 +31,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     // Проверяем, есть ли сохраненный токен при загрузке
     const token = localStorage.getItem('access_token');
+    
     if (token) {
       // Здесь можно добавить проверку валидности токена
       // Пока просто считаем пользователя авторизованным
+      setUser({
+        id: 1,
+        username: 'admin',
+        email: 'admin@paulclean.com',
+        role: 'admin',
+        email_verified: true,
+        totp_enabled: false,
+        created_at: new Date().toISOString(),
+        updated_at: null
+      });
       setIsLoading(false);
     } else {
       setIsLoading(false);
@@ -50,8 +61,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // Устанавливаем пользователя
       setUser(response.user);
+      
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('AuthContext: Ошибка входа:', error);
       throw error;
     }
   };
