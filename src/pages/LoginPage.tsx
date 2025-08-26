@@ -30,14 +30,14 @@ export const LoginPage: React.FC = () => {
     setIsLoading(true);
     try {
       await login(data);
-      toast.success('Успешный вход в систему');
+      toast.success('Successfully signed in');
       
       // Перенаправляем на dashboard
       navigate('/admin/dashboard', { replace: true });
       
     } catch (error: any) {
       console.error('LoginPage: Ошибка входа:', error);
-      const message = error.response?.data?.message || 'Ошибка входа в систему';
+      const message = error.response?.data?.message || 'Sign in error';
       toast.error(message);
     } finally {
       setIsLoading(false);
@@ -52,7 +52,7 @@ export const LoginPage: React.FC = () => {
             <Lock className="h-8 w-8 text-white" />
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Вход в админ-панель
+            Admin Panel Login
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             PaulClean Cleaning Service
@@ -63,18 +63,18 @@ export const LoginPage: React.FC = () => {
           <div className="space-y-4">
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                Логин
+                Username
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <User className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  {...register('username', { required: 'Логин обязателен' })}
+                  {...register('username', { required: 'Username is required' })}
                   id="username"
                   type="text"
                   className="input-field pl-10"
-                  placeholder="Введите логин"
+                  placeholder="Enter username"
                 />
               </div>
               {errors.username && (
@@ -84,7 +84,7 @@ export const LoginPage: React.FC = () => {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Пароль
+                Password
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -92,13 +92,13 @@ export const LoginPage: React.FC = () => {
                 </div>
                 <input
                   {...register('password', { 
-                    required: 'Пароль обязателен',
-                    minLength: { value: 8, message: 'Пароль должен содержать минимум 8 символов' }
+                    required: 'Password is required',
+                                          minLength: { value: 8, message: 'Password must contain at least 8 characters' }
                   })}
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   className="input-field pl-10 pr-10"
-                  placeholder="Введите пароль"
+                  placeholder="Enter password"
                 />
                 <button
                   type="button"
@@ -127,7 +127,7 @@ export const LoginPage: React.FC = () => {
               {isLoading ? (
                 <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
               ) : (
-                'Войти'
+                'Sign In'
               )}
             </button>
           </div>

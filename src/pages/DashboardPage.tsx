@@ -122,31 +122,31 @@ export const DashboardPage: React.FC = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600">Обзор системы PaulClean</p>
+        <p className="text-gray-600">PaulClean System Overview</p>
       </div>
 
       {/* Статистика */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
-          title="Всего заказов"
+          title="Total Orders"
           value={totalOrders}
           icon={<TrendingUp className="h-6 w-6 text-white" />}
           color="bg-blue-500"
         />
         <StatCard
-          title="Активные услуги"
+          title="Active Services"
           value={`${activeServices}/${totalServices}`}
           icon={<CheckCircle className="h-6 w-6 text-white" />}
           color="bg-green-500"
         />
         <StatCard
-          title="Уборщики"
+          title="Cleaners"
           value={cleaners.length}
           icon={<Users className="h-6 w-6 text-white" />}
           color="bg-purple-500"
         />
         <StatCard
-          title="Ожидают подтверждения"
+          title="Pending Confirmation"
           value={pendingOrders}
           icon={<AlertCircle className="h-6 w-6 text-white" />}
           color="bg-yellow-500"
@@ -156,7 +156,7 @@ export const DashboardPage: React.FC = () => {
       {/* Графики */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="card">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Заказы по дням</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Orders by Day</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -169,13 +169,13 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         <div className="card">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Выручка по дням</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Revenue by Day</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
               <YAxis />
-              <Tooltip formatter={(value) => [`$${value}`, 'Выручка']} />
+              <Tooltip formatter={(value) => [`$${value}`, 'Revenue']} />
               <Bar dataKey="revenue" fill="#10b981" />
             </BarChart>
           </ResponsiveContainer>
@@ -184,46 +184,46 @@ export const DashboardPage: React.FC = () => {
 
       {/* Статусы заказов */}
       <div className="card">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Статусы заказов</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Order Statuses</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center">
             <div className="text-2xl font-bold text-yellow-600">{pendingOrders}</div>
-            <div className="text-sm text-gray-600">Ожидают подтверждения</div>
+            <div className="text-sm text-gray-600">Pending Confirmation</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-blue-600">{confirmedOrders}</div>
-            <div className="text-sm text-gray-600">Подтверждены</div>
+            <div className="text-sm text-gray-600">Confirmed</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-green-600">{completedOrders}</div>
-            <div className="text-sm text-gray-600">Завершены</div>
+            <div className="text-sm text-gray-600">Completed</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-red-600">{cancelledOrders}</div>
-            <div className="text-sm text-gray-600">Отменены</div>
+            <div className="text-sm text-gray-600">Cancelled</div>
           </div>
         </div>
       </div>
 
       {/* Быстрые действия */}
       <div>
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Быстрые действия</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <QuickActionCard
-            title="Создать услугу"
-            description="Добавить новую услугу в систему"
+            title="Create Service"
+            description="Add new service to the system"
             href="/admin/services/create"
             icon={<Plus className="h-6 w-6" />}
           />
           <QuickActionCard
-            title="Просмотреть заказы"
-            description="Управление заказами и их статусами"
+            title="View Orders"
+            description="Manage orders and their statuses"
             href="/admin/orders"
             icon={<Eye className="h-6 w-6" />}
           />
           <QuickActionCard
-            title="Управление уборщиками"
-            description="Добавить или изменить уборщиков"
+            title="Manage Cleaners"
+            description="Add or modify cleaners"
             href="/admin/cleaners"
             icon={<Users className="h-6 w-6" />}
           />

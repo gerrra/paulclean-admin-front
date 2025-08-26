@@ -18,9 +18,9 @@ interface LayoutProps {}
 
 const navigation = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: Home },
-  { name: 'Услуги', href: '/admin/services', icon: Settings },
-  { name: 'Уборщики', href: '/admin/cleaners', icon: Users },
-  { name: 'Заказы', href: '/admin/orders', icon: ClipboardList },
+  { name: 'Services', href: '/admin/services', icon: Settings },
+  { name: 'Cleaners', href: '/admin/cleaners', icon: Users },
+  { name: 'Orders', href: '/admin/orders', icon: ClipboardList },
 ];
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
