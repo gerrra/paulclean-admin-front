@@ -1,16 +1,15 @@
 // Enums
-export enum ServiceCategory {
-  COUCH = "couch",
-  RUG = "rug", 
-  WINDOW = "window",
-  OTHER = "other"
-}
-
 export enum OrderStatus {
   PENDING_CONFIRMATION = "Pending Confirmation",
   CONFIRMED = "Confirmed",
   COMPLETED = "Completed",
   CANCELLED = "Cancelled"
+}
+
+export enum PricingOptionType {
+  PER_UNIT = "per_unit",
+  SELECTOR = "selector",
+  PERCENTAGE = "percentage"
 }
 
 // User types
@@ -42,18 +41,7 @@ export interface AdminLoginResponse {
 export interface ServiceResponse {
   id: number;
   name: string;
-  description: string;
-  category: ServiceCategory;
-  price_per_removable_cushion: number;
-  price_per_unremovable_cushion: number;
-  price_per_pillow: number;
-  price_per_window: number;
-  base_surcharge_pct: number;
-  pet_hair_surcharge_pct: number;
-  urine_stain_surcharge_pct: number;
-  accelerated_drying_surcharge: number;
-  before_image: string | null;
-  after_image: string | null;
+  description: string | null;
   is_published: boolean;
   created_at: string;
   updated_at: string | null;
@@ -61,22 +49,158 @@ export interface ServiceResponse {
 
 export interface ServiceCreate {
   name: string;
-  description: string;
-  category: ServiceCategory;
-  price_per_removable_cushion?: number;
-  price_per_unremovable_cushion?: number;
-  price_per_pillow?: number;
-  price_per_window?: number;
-  base_surcharge_pct?: number;
-  pet_hair_surcharge_pct?: number;
-  urine_stain_surcharge_pct?: number;
-  accelerated_drying_surcharge?: number;
-  before_image?: string | null;
-  after_image?: string | null;
+  description?: string;
   is_published?: boolean;
 }
 
-// Pricing block types
+export interface ServiceUpdate {
+  name?: string;
+  description?: string;
+  is_published?: boolean;
+}
+
+// Pricing option types
+export interface PricingOption {
+  id: number;
+  service_id: number;
+  name: string;
+  option_type: PricingOptionType;
+  order_index: number;
+  is_required: boolean;
+  is_active: boolean;
+  is_hidden: boolean;
+  per_unit_option?: PerUnitOption;
+  selector_option?: SelectorOption;
+  percentage_option?: PercentageOption;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface PricingOptionCreate {
+  service_id: number;
+  name: string;
+  option_type: PricingOptionType;
+  order_index?: number;
+  is_required?: boolean;
+  is_active?: boolean;
+  is_hidden?: boolean;
+  per_unit_option?: PerUnitOptionCreate;
+  selector_option?: SelectorOptionCreate;
+  percentage_option?: PercentageOptionCreate;
+}
+
+export interface PricingOptionUpdate {
+  name?: string;
+  order_index?: number;
+  is_required?: boolean;
+  is_active?: boolean;
+  is_hidden?: boolean;
+  per_unit_option?: PerUnitOptionUpdate;
+  selector_option?: SelectorOptionUpdate;
+  percentage_option?: PercentageOptionUpdate;
+}
+
+// Per unit option types
+export interface PerUnitOption {
+  id: number;
+  pricing_option_id: number;
+  price_per_unit: number;
+  short_description: string | null;
+  full_description: string | null;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface PerUnitOptionCreate {
+  price_per_unit: number;
+  short_description?: string;
+  full_description?: string;
+}
+
+export interface PerUnitOptionUpdate {
+  price_per_unit?: number;
+  short_description?: string;
+  full_description?: string;
+}
+
+// Selector option types
+export interface SelectorOption {
+  id: number;
+  pricing_option_id: number;
+  short_description: string | null;
+  full_description: string | null;
+  options: SelectorOptionItem[];
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface SelectorOptionCreate {
+  short_description?: string;
+  full_description?: string;
+  options: SelectorOptionItemCreate[];
+}
+
+export interface SelectorOptionUpdate {
+  short_description?: string;
+  full_description?: string;
+  options?: SelectorOptionItemUpdate[];
+}
+
+export interface SelectorOptionItem {
+  id: number;
+  selector_option_id: number;
+  name: string;
+  price: number;
+  short_description: string | null;
+  full_description: string | null;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface SelectorOptionItemCreate {
+  name: string;
+  price: number;
+  short_description?: string;
+  full_description?: string;
+}
+
+export interface SelectorOptionItemUpdate {
+  name?: string;
+  price?: number;
+  short_description?: string;
+  full_description?: string;
+}
+
+// Percentage option types
+export interface PercentageOption {
+  id: number;
+  pricing_option_id: number;
+  short_description: string | null;
+  full_description: string | null;
+  percentage_value: number;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface PercentageOptionCreate {
+  short_description?: string;
+  full_description?: string;
+  percentage_value: number;
+}
+
+export interface PercentageOptionUpdate {
+  short_description?: string;
+  full_description?: string;
+  percentage_value?: number;
+}
+
+// Option order update
+export interface OptionOrderUpdate {
+  id: number;
+  order_index: number;
+}
+
+// Pricing block types (keeping for backward compatibility)
 export interface QuantityOptionCreate {
   name: string;
   unit_price: number;
@@ -101,39 +225,63 @@ export interface ToggleOptionCreate {
 }
 
 export interface PricingBlockCreate {
+  service_id: number;
   name: string;
-  block_type: "quantity" | "type_choice" | "toggle";
-  order_index?: number;
-  is_required?: boolean;
-  quantity_options?: QuantityOptionCreate;
-  type_options?: TypeOptionCreate;
+  block_type: 'quantity' | 'type' | 'toggle';
+  order_index: number;
+  is_required: boolean;
+  is_active: boolean;
+  quantity_option?: QuantityOptionCreate;
+  type_option?: TypeOptionCreate;
   toggle_option?: ToggleOptionCreate;
-}
-
-export interface QuantityOptionResponse extends QuantityOptionCreate {
-  id: number;
-}
-
-export interface TypeOptionResponse extends TypeOptionCreate {
-  id: number;
-}
-
-export interface ToggleOptionResponse extends ToggleOptionCreate {
-  id: number;
 }
 
 export interface PricingBlockResponse {
   id: number;
+  service_id: number;
   name: string;
-  block_type: string;
+  block_type: 'quantity' | 'type' | 'toggle';
   order_index: number;
   is_required: boolean;
   is_active: boolean;
+  quantity_option?: {
+    id: number;
+    pricing_block_id: number;
+    name: string;
+    unit_price: number;
+    min_quantity?: number;
+    max_quantity?: number;
+    unit_name: string;
+    created_at: string;
+    updated_at: string | null;
+  };
+  type_option?: {
+    id: number;
+    pricing_block_id: number;
+    name: string;
+    options: Array<{
+      id: number;
+      type_option_id: number;
+      name: string;
+      price: number;
+      created_at: string;
+      updated_at: string | null;
+    }>;
+    created_at: string;
+    updated_at: string | null;
+  };
+  toggle_option?: {
+    id: number;
+    pricing_block_id: number;
+    name: string;
+    short_description: string;
+    full_description?: string;
+    percentage_increase: number;
+    created_at: string;
+    updated_at: string | null;
+  };
   created_at: string;
   updated_at: string | null;
-  quantity_options?: QuantityOptionResponse;
-  type_options?: TypeOptionResponse;
-  toggle_option?: ToggleOptionResponse;
 }
 
 export interface PricingBlockUpdate {
@@ -141,110 +289,99 @@ export interface PricingBlockUpdate {
   order_index?: number;
   is_required?: boolean;
   is_active?: boolean;
-  quantity_options?: QuantityOptionCreate;
-  type_options?: TypeOptionCreate;
-  toggle_option?: ToggleOptionCreate;
+  quantity_option?: Partial<QuantityOptionCreate>;
+  type_option?: Partial<TypeOptionCreate>;
+  toggle_option?: Partial<ToggleOptionCreate>;
 }
 
 export interface BlockOrder {
-  block_id: number;
-  new_order: number;
+  id: number;
+  order_index: number;
 }
 
 // Cleaner types
 export interface CleanerResponse {
   id: number;
-  full_name: string;
-  phone: string;
+  name: string;
   email: string;
-  services: number[];
-  calendar_email?: string | null;
+  phone: string;
+  is_active: boolean;
   created_at: string;
   updated_at: string | null;
 }
 
 export interface CleanerCreate {
-  full_name: string;
-  phone: string;
+  name: string;
   email: string;
-  services?: number[];
-  calendar_email?: string | null;
+  phone: string;
+  is_active?: boolean;
 }
 
 // Order types
-export interface ClientResponse {
-  id: number;
-  full_name: string;
-  email: string;
-  phone: string;
-  address: string;
-}
-
-export interface OrderItemResponse {
-  id: number;
-  service_id: number;
-  service_name: string;
-  quantity: number;
-  unit_price: number;
-  total_price: number;
-  options: Record<string, any>;
-}
-
 export interface OrderResponse {
   id: number;
-  client: ClientResponse;
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string;
+  service_id: number;
+  service_name: string;
+  status: OrderStatus;
+  total_amount: number;
   scheduled_date: string;
   scheduled_time: string;
-  total_duration_minutes: number;
-  total_price: number;
-  status: string;
-  cleaner?: CleanerResponse | null;
-  notes?: string | null;
-  order_items: OrderItemResponse[];
+  address: string;
+  notes?: string;
   created_at: string;
   updated_at: string | null;
 }
 
 export interface OrderListQuery {
-  status?: OrderStatus | null;
-  date_from?: string | null;
-  date_to?: string | null;
+  page?: number;
+  limit?: number;
+  status?: OrderStatus;
+  service_id?: number;
+  date_from?: string;
+  date_to?: string;
 }
 
 export interface OrderStatusUpdate {
   status: OrderStatus;
-  notes?: string;
 }
 
 export interface CleanerAssignment {
+  order_id: number;
   cleaner_id: number;
 }
 
 // Timeslot types
 export interface TimeslotsQuery {
   date: string;
+  service_id?: number;
 }
 
 export interface TimeslotsResponse {
   date: string;
-  available_slots: string[];
-  working_hours: object;
-  slot_duration_minutes: number;
+  available_times: string[];
+  booked_times: string[];
 }
 
 // Calculation types
-export interface OrderItemCreate {
-  service_id: number;
-  quantity: number;
-  options: Record<string, any>;
-}
-
 export interface OrderCalculation {
-  order_items: OrderItemCreate[];
+  service_id: number;
+  options: Array<{
+    option_id: number;
+    quantity?: number;
+    selected_value?: string;
+  }>;
 }
 
 export interface CalculationResponse {
-  total_price: number;
-  total_duration_minutes: number;
-  order_items: OrderItemResponse[];
+  subtotal: number;
+  total: number;
+  breakdown: Array<{
+    option_name: string;
+    price: number;
+    quantity?: number;
+    total: number;
+  }>;
 }
