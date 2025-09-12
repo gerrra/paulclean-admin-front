@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { ArrowLeft, Save, Plus, Trash2, GripVertical, Eye, EyeOff } from 'lucide-react';
 import { apiClient } from '../api/client';
-import { ServiceCreate, PricingOptionCreate, PricingOptionType } from '../types';
+import { ServiceCreate, PricingOptionCreate, PricingOptionType, FlexibleValueType } from '../types';
 import toast from 'react-hot-toast';
 
 interface CreateServiceFormData extends ServiceCreate {
@@ -15,7 +15,6 @@ interface PricingOptionFormData {
   option_type: PricingOptionType;
   order_index: number;
   is_required: boolean;
-  is_active: boolean;
   is_hidden: boolean;
   per_unit_option?: {
     price_per_unit: number;
@@ -32,10 +31,12 @@ interface PricingOptionFormData {
       full_description: string;
     }>;
   };
-  percentage_option?: {
+  flexible_value_option?: {
     short_description: string;
     full_description: string;
-    percentage_value: number;
+    value_type: FlexibleValueType;
+    value: number;
+    is_enabled: boolean;
   };
 }
 
@@ -75,12 +76,10 @@ export const CreateServicePage: React.FC = () => {
       if (pricingOptions.length > 0) {
         for (const option of pricingOptions) {
           const pricingOptionData: PricingOptionCreate = {
-            service_id: service.id,
             name: option.name,
             option_type: option.option_type,
             order_index: option.order_index,
             is_required: option.is_required,
-            is_active: option.is_active,
             is_hidden: option.is_hidden,
           };
 
@@ -97,11 +96,13 @@ export const CreateServicePage: React.FC = () => {
               full_description: option.selector_option.full_description,
               options: option.selector_option.options,
             };
-          } else if (option.option_type === PricingOptionType.PERCENTAGE && option.percentage_option) {
-            pricingOptionData.percentage_option = {
-              short_description: option.percentage_option.short_description,
-              full_description: option.percentage_option.full_description,
-              percentage_value: option.percentage_option.percentage_value,
+          } else if (option.option_type === PricingOptionType.FLEXIBLE_VALUE && option.flexible_value_option) {
+            pricingOptionData.flexible_value_option = {
+              short_description: option.flexible_value_option.short_description,
+              full_description: option.flexible_value_option.full_description,
+              value_type: option.flexible_value_option.value_type,
+              value: option.flexible_value_option.value,
+              is_enabled: option.flexible_value_option.is_enabled,
             };
           }
 
@@ -125,7 +126,6 @@ export const CreateServicePage: React.FC = () => {
       option_type: PricingOptionType.PER_UNIT,
       order_index: pricingOptions.length,
       is_required: false,
-      is_active: true,
       is_hidden: false,
       per_unit_option: {
         price_per_unit: 0,
@@ -137,10 +137,12 @@ export const CreateServicePage: React.FC = () => {
         full_description: '',
         options: [{ name: '', price: 0, short_description: '', full_description: '' }],
       },
-      percentage_option: {
+      flexible_value_option: {
         short_description: '',
         full_description: '',
-        percentage_value: 0,
+        value_type: FlexibleValueType.PERCENTAGE,
+        value: 0,
+        is_enabled: false,
       },
     };
     setPricingOptions([...pricingOptions, newOption]);
@@ -178,7 +180,7 @@ export const CreateServicePage: React.FC = () => {
     const badges = {
       [PricingOptionType.PER_UNIT]: 'bg-blue-100 text-blue-800',
       [PricingOptionType.SELECTOR]: 'bg-green-100 text-green-800',
-      [PricingOptionType.PERCENTAGE]: 'bg-orange-100 text-orange-800',
+      [PricingOptionType.FLEXIBLE_VALUE]: 'bg-orange-100 text-orange-800',
     };
     return badges[type];
   };
@@ -187,7 +189,7 @@ export const CreateServicePage: React.FC = () => {
     const labels = {
       [PricingOptionType.PER_UNIT]: 'Per Unit',
       [PricingOptionType.SELECTOR]: 'Selector',
-      [PricingOptionType.PERCENTAGE]: 'Percentage',
+      [PricingOptionType.FLEXIBLE_VALUE]: 'Flexible Value',
     };
     return labels[type];
   };
@@ -296,11 +298,6 @@ export const CreateServicePage: React.FC = () => {
                               Hidden
                             </span>
                           )}
-                          {!option.is_active && (
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                              Inactive
-                            </span>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -401,11 +398,10 @@ const PricingOptionModal: React.FC<PricingOptionModalProps> = ({ option, onSave,
       option_type: PricingOptionType.PER_UNIT,
       order_index: 0,
       is_required: false,
-      is_active: true,
       is_hidden: false,
       per_unit_option: { price_per_unit: 0, short_description: '', full_description: '' },
       selector_option: { short_description: '', full_description: '', options: [{ name: '', price: 0, short_description: '', full_description: '' }] },
-      percentage_option: { short_description: '', full_description: '', percentage_value: 0 },
+      flexible_value_option: { short_description: '', full_description: '', value_type: FlexibleValueType.PERCENTAGE, value: 0, is_enabled: false },
     }
   );
 
@@ -488,13 +484,13 @@ const PricingOptionModal: React.FC<PricingOptionModalProps> = ({ option, onSave,
               >
                 <option value={PricingOptionType.PER_UNIT}>Per Unit</option>
                 <option value={PricingOptionType.SELECTOR}>Selector</option>
-                <option value={PricingOptionType.PERCENTAGE}>Percentage</option>
+                <option value={PricingOptionType.FLEXIBLE_VALUE}>Flexible Value</option>
               </select>
             </div>
           </div>
 
           {/* Checkboxes */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-center">
               <input
                 type="checkbox"
@@ -503,15 +499,6 @@ const PricingOptionModal: React.FC<PricingOptionModalProps> = ({ option, onSave,
                 className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
               />
               <label className="ml-2 block text-sm text-gray-900">Required</label>
-            </div>
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                checked={formData.is_active}
-                onChange={(e) => setFormData(prev => ({ ...prev, is_active: e.target.checked }))}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-              />
-              <label className="ml-2 block text-sm text-gray-900">Active</label>
             </div>
             <div className="flex items-center">
               <input
@@ -690,44 +677,74 @@ const PricingOptionModal: React.FC<PricingOptionModalProps> = ({ option, onSave,
             </div>
           )}
 
-          {formData.option_type === PricingOptionType.PERCENTAGE && (
+          {formData.option_type === PricingOptionType.FLEXIBLE_VALUE && (
             <div className="space-y-4">
-              <h4 className="font-medium text-gray-900">Percentage Settings</h4>
+              <h4 className="font-medium text-gray-900">Flexible Value Settings</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Percentage Value *
+                    Value Type *
+                  </label>
+                  <select
+                    value={formData.flexible_value_option!.value_type}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      flexible_value_option: { ...prev.flexible_value_option!, value_type: e.target.value as FlexibleValueType }
+                    }))}
+                    className="input-field"
+                  >
+                    <option value={FlexibleValueType.PERCENTAGE}>Percentage</option>
+                    <option value={FlexibleValueType.DOLLAR_AMOUNT}>Dollar Amount</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Value *
                   </label>
                   <input
                     type="number"
-                    step="0.1"
-                    min="0.1"
-                    max="100"
-                    value={formData.percentage_option!.percentage_value}
+                    step={formData.flexible_value_option!.value_type === FlexibleValueType.PERCENTAGE ? "0.1" : "0.01"}
+                    min={formData.flexible_value_option!.value_type === FlexibleValueType.PERCENTAGE ? "0.1" : "0"}
+                    max={formData.flexible_value_option!.value_type === FlexibleValueType.PERCENTAGE ? "100" : undefined}
+                    value={formData.flexible_value_option!.value}
                     onChange={(e) => setFormData(prev => ({
                       ...prev,
-                      percentage_option: { ...prev.percentage_option!, percentage_value: parseFloat(e.target.value) || 0 }
+                      flexible_value_option: { ...prev.flexible_value_option!, value: parseFloat(e.target.value) || 0 }
                     }))}
                     className="input-field"
-                    placeholder="0.0"
+                    placeholder={formData.flexible_value_option!.value_type === FlexibleValueType.PERCENTAGE ? "0.0" : "0.00"}
                     required
                   />
                 </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Short Description
                   </label>
                   <input
                     type="text"
-                    value={formData.percentage_option!.short_description}
+                    value={formData.flexible_value_option!.short_description}
                     onChange={(e) => setFormData(prev => ({
                       ...prev,
-                      percentage_option: { ...prev.percentage_option!, short_description: e.target.value }
+                      flexible_value_option: { ...prev.flexible_value_option!, short_description: e.target.value }
                     }))}
                     className="input-field"
                     placeholder="Brief description"
                     maxLength={200}
                   />
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={formData.flexible_value_option!.is_enabled}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      flexible_value_option: { ...prev.flexible_value_option!, is_enabled: e.target.checked }
+                    }))}
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                  />
+                  <label className="ml-2 block text-sm text-gray-900">Enabled by default</label>
                 </div>
               </div>
               <div>
@@ -735,10 +752,10 @@ const PricingOptionModal: React.FC<PricingOptionModalProps> = ({ option, onSave,
                   Full Description
                 </label>
                 <textarea
-                  value={formData.percentage_option!.full_description}
+                  value={formData.flexible_value_option!.full_description}
                   onChange={(e) => setFormData(prev => ({
                     ...prev,
-                    percentage_option: { ...prev.percentage_option!, full_description: e.target.value }
+                    flexible_value_option: { ...prev.flexible_value_option!, full_description: e.target.value }
                   }))}
                   className="input-field"
                   rows={3}

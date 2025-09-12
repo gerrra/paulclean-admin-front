@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { apiClient } from '../api/client';
-import { OrderResponse, ServiceResponse, CleanerResponse } from '../types';
+import { OrderResponse, Service, CleanerResponse } from '../types';
 import { OrderStatus } from '../types';
 
 const StatCard: React.FC<{ title: string; value: string | number; icon: React.ReactNode; color: string }> = ({ 
@@ -57,7 +57,7 @@ const QuickActionCard: React.FC<{ title: string; description: string; href: stri
 
 export const DashboardPage: React.FC = () => {
   const [orders, setOrders] = useState<OrderResponse[]>([]);
-  const [services, setServices] = useState<ServiceResponse[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [cleaners, setCleaners] = useState<CleanerResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 

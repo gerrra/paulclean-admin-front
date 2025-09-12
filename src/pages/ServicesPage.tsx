@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Search, Edit, Trash2, Eye, EyeOff, CheckCircle, XCircle, MoreVertical } from 'lucide-react';
 import { apiClient } from '../api/client';
-import { ServiceResponse } from '../types';
+import { Service } from '../types';
 import toast from 'react-hot-toast';
 
 export const ServicesPage: React.FC = () => {
-  const [services, setServices] = useState<ServiceResponse[]>([]);
-  const [filteredServices, setFilteredServices] = useState<ServiceResponse[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
+  const [filteredServices, setFilteredServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
@@ -54,7 +54,7 @@ export const ServicesPage: React.FC = () => {
     setFilteredServices(filtered);
   };
 
-  const handlePublishToggle = async (service: ServiceResponse) => {
+  const handlePublishToggle = async (service: Service) => {
     try {
       if (service.is_published) {
         await apiClient.unpublishService(service.id);
@@ -70,7 +70,7 @@ export const ServicesPage: React.FC = () => {
     }
   };
 
-  const handleDeleteService = async (service: ServiceResponse) => {
+  const handleDeleteService = async (service: Service) => {
     if (!confirm(`Are you sure you want to delete service "${service.name}"? This action cannot be undone.`)) {
       return;
     }

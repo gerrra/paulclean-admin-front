@@ -9,7 +9,12 @@ export enum OrderStatus {
 export enum PricingOptionType {
   PER_UNIT = "per_unit",
   SELECTOR = "selector",
-  PERCENTAGE = "percentage"
+  FLEXIBLE_VALUE = "flexible_value"
+}
+
+export enum FlexibleValueType {
+  PERCENTAGE = "percentage",
+  DOLLAR_AMOUNT = "dollar_amount"
 }
 
 // User types
@@ -38,13 +43,13 @@ export interface AdminLoginResponse {
 }
 
 // Service types
-export interface ServiceResponse {
+export interface Service {
   id: number;
   name: string;
-  description: string | null;
+  description?: string;
   is_published: boolean;
   created_at: string;
-  updated_at: string | null;
+  updated_at?: string | null;
 }
 
 export interface ServiceCreate {
@@ -59,56 +64,61 @@ export interface ServiceUpdate {
   is_published?: boolean;
 }
 
+export interface ServiceWithPricingResponse extends Service {
+  pricing_options: PricingOption[];
+}
+
 // Pricing option types
 export interface PricingOption {
   id: number;
-  service_id: number;
   name: string;
   option_type: PricingOptionType;
   order_index: number;
   is_required: boolean;
   is_active: boolean;
   is_hidden: boolean;
+  created_at: string;
+  updated_at?: string | null;
+  
+  // Type-specific options
   per_unit_option?: PerUnitOption;
   selector_option?: SelectorOption;
-  percentage_option?: PercentageOption;
-  created_at: string;
-  updated_at: string | null;
+  flexible_value_option?: FlexibleValueOption;
 }
 
 export interface PricingOptionCreate {
-  service_id: number;
   name: string;
   option_type: PricingOptionType;
   order_index?: number;
   is_required?: boolean;
-  is_active?: boolean;
   is_hidden?: boolean;
   per_unit_option?: PerUnitOptionCreate;
   selector_option?: SelectorOptionCreate;
-  percentage_option?: PercentageOptionCreate;
+  flexible_value_option?: FlexibleValueOptionCreate;
 }
 
 export interface PricingOptionUpdate {
   name?: string;
   order_index?: number;
   is_required?: boolean;
-  is_active?: boolean;
   is_hidden?: boolean;
   per_unit_option?: PerUnitOptionUpdate;
   selector_option?: SelectorOptionUpdate;
-  percentage_option?: PercentageOptionUpdate;
+  flexible_value_option?: FlexibleValueOptionUpdate;
+}
+
+export interface PricingOptionResponse extends PricingOption {
+  // Same as PricingOption, but for API responses
 }
 
 // Per unit option types
 export interface PerUnitOption {
   id: number;
-  pricing_option_id: number;
   price_per_unit: number;
-  short_description: string | null;
-  full_description: string | null;
+  short_description?: string;
+  full_description?: string;
   created_at: string;
-  updated_at: string | null;
+  updated_at?: string | null;
 }
 
 export interface PerUnitOptionCreate {
@@ -126,12 +136,11 @@ export interface PerUnitOptionUpdate {
 // Selector option types
 export interface SelectorOption {
   id: number;
-  pricing_option_id: number;
-  short_description: string | null;
-  full_description: string | null;
+  short_description?: string;
+  full_description?: string;
   options: SelectorOptionItem[];
   created_at: string;
-  updated_at: string | null;
+  updated_at?: string | null;
 }
 
 export interface SelectorOptionCreate {
@@ -147,14 +156,10 @@ export interface SelectorOptionUpdate {
 }
 
 export interface SelectorOptionItem {
-  id: number;
-  selector_option_id: number;
   name: string;
   price: number;
-  short_description: string | null;
-  full_description: string | null;
-  created_at: string;
-  updated_at: string | null;
+  short_description?: string;
+  full_description?: string;
 }
 
 export interface SelectorOptionItemCreate {
@@ -171,36 +176,76 @@ export interface SelectorOptionItemUpdate {
   full_description?: string;
 }
 
-// Percentage option types
-export interface PercentageOption {
+// Flexible value option types (NEW)
+export interface FlexibleValueOption {
   id: number;
-  pricing_option_id: number;
-  short_description: string | null;
-  full_description: string | null;
-  percentage_value: number;
+  short_description?: string;
+  full_description?: string;
+  value_type: FlexibleValueType;
+  value: number;
+  is_enabled: boolean;
   created_at: string;
-  updated_at: string | null;
+  updated_at?: string | null;
 }
 
-export interface PercentageOptionCreate {
+export interface FlexibleValueOptionCreate {
   short_description?: string;
   full_description?: string;
-  percentage_value: number;
+  value_type: FlexibleValueType;
+  value: number;
+  is_enabled: boolean;
 }
 
-export interface PercentageOptionUpdate {
+export interface FlexibleValueOptionUpdate {
   short_description?: string;
   full_description?: string;
-  percentage_value?: number;
+  value_type?: FlexibleValueType;
+  value?: number;
+  is_enabled?: boolean;
 }
 
 // Option order update
 export interface OptionOrderUpdate {
-  id: number;
-  order_index: number;
+  option_id: number;
+  new_order: number;
 }
 
-// Pricing block types (keeping for backward compatibility)
+// Public service types
+export interface PublicServiceResponse {
+  id: number;
+  name: string;
+  description?: string;
+  pricing_options: PricingOption[];
+}
+
+// Pricing calculation types
+export interface OptionSelection {
+  option_id: number;
+  quantity?: number;           // For per_unit options
+  selected_option?: string;    // For selector options
+  enabled?: boolean;           // For flexible_value options
+}
+
+export interface PublicPricingCalculationRequest {
+  service_id: number;
+  option_selections: OptionSelection[];
+}
+
+export interface ServicePricingResponse {
+  total_price: number;
+  base_price: number;
+  breakdown: Array<{
+    option_name: string;
+    quantity?: number;
+    unit_price?: number;
+    total?: number;
+    selected?: string;
+    price?: number;
+  }>;
+  estimated_time_minutes: number;
+}
+
+// Legacy types (keeping for backward compatibility)
 export interface QuantityOptionCreate {
   name: string;
   unit_price: number;

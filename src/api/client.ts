@@ -2,12 +2,14 @@ import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { 
   AdminLoginRequest, 
   AdminLoginResponse,
-  ServiceResponse,
+  Service,
   ServiceCreate,
   ServiceUpdate,
+  ServiceWithPricingResponse,
   PricingOption,
   PricingOptionCreate,
   PricingOptionUpdate,
+  PricingOptionResponse,
   OptionOrderUpdate,
   CleanerResponse,
   CleanerCreate,
@@ -18,7 +20,10 @@ import {
   TimeslotsQuery,
   TimeslotsResponse,
   OrderCalculation,
-  CalculationResponse
+  CalculationResponse,
+  PublicServiceResponse,
+  PublicPricingCalculationRequest,
+  ServicePricingResponse
 } from '../types';
 
 class ApiClient {
@@ -26,7 +31,11 @@ class ApiClient {
   private baseURL: string;
 
   constructor() {
-    this.baseURL = import.meta.env.VITE_API_BASE_URL || 'https://api.paulcleanwa.com';
+    // Use local proxy in development to avoid CORS issues
+    this.baseURL = import.meta.env.DEV 
+      ? '/api' // This will be proxied by Vite to https://api.paulcleanwa.com/api
+      : 'https://api.paulcleanwa.com';
+    
     this.client = axios.create({
       baseURL: this.baseURL,
       headers: {
@@ -64,123 +73,137 @@ class ApiClient {
 
   // Authentication
   async login(credentials: AdminLoginRequest): Promise<AdminLoginResponse> {
-    const response: AxiosResponse<AdminLoginResponse> = await this.client.post('/api/admin/login', credentials);
+    const response: AxiosResponse<AdminLoginResponse> = await this.client.post('/admin/login', credentials);
     return response.data;
   }
 
-  // Services
-  async getServices(): Promise<ServiceResponse[]> {
-    const response: AxiosResponse<ServiceResponse[]> = await this.client.get('/api/admin/services');
+  // Services - Admin endpoints
+  async getServices(): Promise<Service[]> {
+    const response: AxiosResponse<Service[]> = await this.client.get('/admin/services/list');
     return response.data;
   }
 
-  async getService(id: number): Promise<ServiceResponse> {
-    const response: AxiosResponse<ServiceResponse> = await this.client.get(`/api/admin/services/${id}`);
+  async getService(id: number): Promise<ServiceWithPricingResponse> {
+    const response: AxiosResponse<ServiceWithPricingResponse> = await this.client.get(`/admin/services/${id}`);
     return response.data;
   }
 
-  async createService(service: ServiceCreate): Promise<ServiceResponse> {
-    const response: AxiosResponse<ServiceResponse> = await this.client.post('/api/admin/services', service);
+  async createService(service: ServiceCreate): Promise<Service> {
+    const response: AxiosResponse<Service> = await this.client.post('/admin/services/create', service);
     return response.data;
   }
 
-  async updateService(id: number, service: ServiceUpdate): Promise<ServiceResponse> {
-    const response: AxiosResponse<ServiceResponse> = await this.client.put(`/api/admin/services/${id}`, service);
+  async updateService(id: number, service: ServiceUpdate): Promise<Service> {
+    const response: AxiosResponse<Service> = await this.client.put(`/admin/services/${id}/update`, service);
     return response.data;
   }
 
   async deleteService(id: number): Promise<void> {
-    await this.client.delete(`/api/admin/services/${id}`);
+    await this.client.delete(`/admin/services/${id}/delete`);
   }
 
-  async publishService(id: number): Promise<ServiceResponse> {
-    const response: AxiosResponse<ServiceResponse> = await this.client.put(`/api/admin/services/${id}/publish`);
+  async publishService(id: number): Promise<void> {
+    await this.client.put(`/admin/services/${id}/publish`);
+  }
+
+  async unpublishService(id: number): Promise<void> {
+    await this.client.put(`/admin/services/${id}/unpublish`);
+  }
+
+  // Pricing Options - Admin endpoints
+  async getPricingOptions(serviceId: number): Promise<PricingOptionResponse[]> {
+    const response: AxiosResponse<PricingOptionResponse[]> = await this.client.get(`/admin/services/${serviceId}/pricing-options`);
     return response.data;
   }
 
-  async unpublishService(id: number): Promise<ServiceResponse> {
-    const response: AxiosResponse<ServiceResponse> = await this.client.put(`/api/admin/services/${id}/unpublish`);
+  async createPricingOption(serviceId: number, option: PricingOptionCreate): Promise<PricingOptionResponse> {
+    const response: AxiosResponse<PricingOptionResponse> = await this.client.post(`/admin/services/${serviceId}/pricing-options`, option);
     return response.data;
   }
 
-  // Pricing Options
-  async getPricingOptions(serviceId: number): Promise<PricingOption[]> {
-    const response: AxiosResponse<PricingOption[]> = await this.client.get(`/api/admin/services/${serviceId}/pricing-options`);
+  async updatePricingOption(optionId: number, option: PricingOptionUpdate): Promise<PricingOptionResponse> {
+    const response: AxiosResponse<PricingOptionResponse> = await this.client.put(`/admin/pricing-options/${optionId}`, option);
     return response.data;
   }
 
-  async createPricingOption(serviceId: number, option: PricingOptionCreate): Promise<PricingOption> {
-    const response: AxiosResponse<PricingOption> = await this.client.post(`/api/admin/services/${serviceId}/pricing-options`, option);
+  async deletePricingOption(optionId: number): Promise<void> {
+    await this.client.delete(`/admin/pricing-options/${optionId}`);
+  }
+
+  async updatePricingOptionsOrder(updates: OptionOrderUpdate[]): Promise<void> {
+    await this.client.put('/admin/pricing-options/order', updates);
+  }
+
+  // Public endpoints
+  async getPublicServices(): Promise<PublicServiceResponse[]> {
+    const response: AxiosResponse<PublicServiceResponse[]> = await this.client.get('/public/services');
     return response.data;
   }
 
-  async updatePricingOption(id: number, option: PricingOptionUpdate): Promise<PricingOption> {
-    const response: AxiosResponse<PricingOption> = await this.client.put(`/api/admin/pricing-options/${id}`, option);
+  async getPublicService(id: number): Promise<PublicServiceResponse> {
+    const response: AxiosResponse<PublicServiceResponse> = await this.client.get(`/public/services/${id}`);
     return response.data;
   }
 
-  async deletePricingOption(id: number): Promise<void> {
-    await this.client.delete(`/api/admin/pricing-options/${id}`);
-  }
-
-  async updatePricingOptionOrder(updates: OptionOrderUpdate[]): Promise<void> {
-    await this.client.put('/api/admin/pricing-options/order', updates);
+  async calculatePrice(calculation: PublicPricingCalculationRequest): Promise<ServicePricingResponse> {
+    const response: AxiosResponse<ServicePricingResponse> = await this.client.post('/public/calculate-price', calculation);
+    return response.data;
   }
 
   // Cleaners
   async getCleaners(): Promise<CleanerResponse[]> {
-    const response: AxiosResponse<CleanerResponse[]> = await this.client.get('/api/admin/cleaners');
+    const response: AxiosResponse<CleanerResponse[]> = await this.client.get('/admin/cleaners');
     return response.data;
   }
 
   async getCleaner(id: number): Promise<CleanerResponse> {
-    const response: AxiosResponse<CleanerResponse> = await this.client.get(`/api/admin/cleaners/${id}`);
+    const response: AxiosResponse<CleanerResponse> = await this.client.get(`/admin/cleaners/${id}`);
     return response.data;
   }
 
   async createCleaner(cleaner: CleanerCreate): Promise<CleanerResponse> {
-    const response: AxiosResponse<CleanerResponse> = await this.client.post('/api/admin/cleaners', cleaner);
+    const response: AxiosResponse<CleanerResponse> = await this.client.post('/admin/cleaners', cleaner);
     return response.data;
   }
 
   async updateCleaner(id: number, cleaner: Partial<CleanerCreate>): Promise<CleanerResponse> {
-    const response: AxiosResponse<CleanerResponse> = await this.client.put(`/api/admin/cleaners/${id}`, cleaner);
+    const response: AxiosResponse<CleanerResponse> = await this.client.put(`/admin/cleaners/${id}`, cleaner);
     return response.data;
   }
 
   async deleteCleaner(id: number): Promise<void> {
-    await this.client.delete(`/api/admin/cleaners/${id}`);
+    await this.client.delete(`/admin/cleaners/${id}`);
   }
 
   // Orders
   async getOrders(query?: OrderListQuery): Promise<OrderResponse[]> {
-    const response: AxiosResponse<OrderResponse[]> = await this.client.get('/api/admin/orders', { params: query });
+    const response: AxiosResponse<OrderResponse[]> = await this.client.get('/admin/orders', { params: query });
     return response.data;
   }
 
   async getOrder(id: number): Promise<OrderResponse> {
-    const response: AxiosResponse<OrderResponse> = await this.client.get(`/api/admin/orders/${id}`);
+    const response: AxiosResponse<OrderResponse> = await this.client.get(`/admin/orders/${id}`);
     return response.data;
   }
 
   async updateOrderStatus(id: number, status: OrderStatusUpdate): Promise<OrderResponse> {
-    const response: AxiosResponse<OrderResponse> = await this.client.put(`/api/admin/orders/${id}/status`, status);
+    const response: AxiosResponse<OrderResponse> = await this.client.put(`/admin/orders/${id}/status`, status);
     return response.data;
   }
 
   async assignCleaner(assignment: CleanerAssignment): Promise<void> {
-    await this.client.put('/api/admin/orders/assign-cleaner', assignment);
+    await this.client.put('/admin/orders/assign-cleaner', assignment);
   }
 
   // Timeslots
   async getTimeslots(query: TimeslotsQuery): Promise<TimeslotsResponse> {
-    const response: AxiosResponse<TimeslotsResponse> = await this.client.get('/api/admin/timeslots', { params: query });
+    const response: AxiosResponse<TimeslotsResponse> = await this.client.get('/admin/timeslots', { params: query });
     return response.data;
   }
 
   // Calculations
   async calculateOrder(calculation: OrderCalculation): Promise<CalculationResponse> {
-    const response: AxiosResponse<CalculationResponse> = await this.client.post('/api/admin/orders/calculate', calculation);
+    const response: AxiosResponse<CalculationResponse> = await this.client.post('/admin/orders/calculate', calculation);
     return response.data;
   }
 }
