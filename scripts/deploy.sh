@@ -54,7 +54,7 @@ log_info "Starting deployment to $ENVIRONMENT environment..."
 
 # Build the application
 log_info "Installing dependencies..."
-npm ci
+npm install
 
 log_info "Running linter..."
 npm run lint
