@@ -37,19 +37,10 @@ jobs:
         
     - name: Run linter
       run: |
-        echo "🔍 Running linter with detailed output..."
-        # Install ESLint dependencies if not present
-        if [ ! -d "node_modules/@typescript-eslint" ] || [ ! -d "node_modules/eslint-plugin-react" ]; then
-          echo "⚠️ Installing missing ESLint dependencies..."
-          npm install @typescript-eslint/eslint-plugin@^6.21.0 @typescript-eslint/parser@^6.21.0 eslint-plugin-react@^7.34.0 eslint-plugin-react-hooks@^4.6.0
-          echo "✅ ESLint dependencies installed"
-        else
-          echo "✅ ESLint dependencies already present"
-        fi
-        
+        echo "🔍 Running linter with basic configuration..."
         echo "🔍 Verifying ESLint installation..."
         npx eslint --version
-        echo "🔍 Running ESLint with debug info..."
+        echo "🔍 Running ESLint with basic rules..."
         npm run lint
       
     - name: Build application

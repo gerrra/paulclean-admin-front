@@ -57,25 +57,9 @@ log_info "Installing dependencies..."
 npm install
 
 log_info "Running linter..."
-# Debug node_modules structure
-log_info "Checking node_modules structure..."
-ls -la node_modules/ | head -10
-log_info "Checking for ESLint packages..."
-ls -la node_modules/@typescript-eslint/ 2>/dev/null || log_warning "@typescript-eslint not found"
-ls -la node_modules/eslint-plugin-react/ 2>/dev/null || log_warning "eslint-plugin-react not found"
-
-# Install ESLint dependencies if not present
-if [ ! -d "node_modules/@typescript-eslint" ] || [ ! -d "node_modules/eslint-plugin-react" ]; then
-    log_info "Installing ESLint dependencies..."
-    npm install @typescript-eslint/eslint-plugin@^6.21.0 @typescript-eslint/parser@^6.21.0 eslint-plugin-react@^7.34.0 eslint-plugin-react-hooks@^4.6.0
-    log_success "ESLint dependencies installed"
-else
-    log_success "ESLint dependencies already present"
-fi
-
 log_info "Verifying ESLint installation..."
 npx eslint --version
-log_info "Running ESLint with debug info..."
+log_info "Running ESLint with basic rules..."
 npm run lint
 
 log_info "Building application..."
