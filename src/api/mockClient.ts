@@ -5,7 +5,6 @@ import {
   ServiceCreate,
   ServiceUpdate,
   ServiceWithPricingResponse,
-  PricingOption,
   PricingOptionCreate,
   PricingOptionUpdate,
   PricingOptionResponse,
@@ -49,9 +48,12 @@ const mockCleaners: CleanerResponse[] = [
   {
     id: 1,
     name: "John Doe",
+    full_name: "John Doe",
     email: "john@example.com",
     phone: "+1234567890",
     is_active: true,
+    services: [1, 2],
+    calendar_email: "john.calendar@example.com",
     created_at: "2025-01-10T10:00:00Z",
     updated_at: null
   }
@@ -67,10 +69,26 @@ const mockOrders: OrderResponse[] = [
     service_name: "Couch Cleaning",
     status: "Pending Confirmation" as any,
     total_amount: 150.00,
+    total_price: 150.00,
+    total_duration_minutes: 120,
     scheduled_date: "2025-01-20",
     scheduled_time: "14:00",
     address: "123 Main St, City",
     notes: "Please clean the fabric couch",
+    client: {
+      full_name: "Jane Smith",
+      email: "jane@example.com",
+      phone: "+1987654321"
+    },
+    cleaner: null,
+    order_items: [
+      {
+        id: 1,
+        name: "Couch Cleaning",
+        quantity: 1,
+        price: 150.00
+      }
+    ],
     created_at: "2025-01-15T10:00:00Z",
     updated_at: null
   }
@@ -172,12 +190,12 @@ class MockApiClient {
   }
 
   // Pricing Options
-  async getPricingOptions(serviceId: number): Promise<PricingOptionResponse[]> {
+  async getPricingOptions(_serviceId: number): Promise<PricingOptionResponse[]> {
     await this.delay();
     return [];
   }
 
-  async createPricingOption(serviceId: number, option: PricingOptionCreate): Promise<PricingOptionResponse> {
+  async createPricingOption(_serviceId: number, option: PricingOptionCreate): Promise<PricingOptionResponse> {
     await this.delay();
     return {
       id: Date.now(),
@@ -207,12 +225,12 @@ class MockApiClient {
     };
   }
 
-  async deletePricingOption(optionId: number): Promise<void> {
+  async deletePricingOption(_optionId: number): Promise<void> {
     await this.delay();
     // Mock implementation
   }
 
-  async updatePricingOptionsOrder(updates: OptionOrderUpdate[]): Promise<void> {
+  async updatePricingOptionsOrder(_updates: OptionOrderUpdate[]): Promise<void> {
     await this.delay();
     // Mock implementation
   }
@@ -233,7 +251,7 @@ class MockApiClient {
     return { ...service, pricing_options: [] };
   }
 
-  async calculatePrice(calculation: PublicPricingCalculationRequest): Promise<ServicePricingResponse> {
+  async calculatePrice(_calculation: PublicPricingCalculationRequest): Promise<ServicePricingResponse> {
     await this.delay();
     return {
       total_price: 150.00,
@@ -293,7 +311,7 @@ class MockApiClient {
   }
 
   // Orders
-  async getOrders(query?: OrderListQuery): Promise<OrderResponse[]> {
+  async getOrders(_query?: OrderListQuery): Promise<OrderResponse[]> {
     await this.delay();
     return [...mockOrders];
   }
@@ -315,7 +333,7 @@ class MockApiClient {
     return order;
   }
 
-  async assignCleaner(assignment: CleanerAssignment): Promise<void> {
+  async assignCleaner(_assignment: CleanerAssignment): Promise<void> {
     await this.delay();
     // Mock implementation
   }
@@ -331,7 +349,7 @@ class MockApiClient {
   }
 
   // Calculations
-  async calculateOrder(calculation: OrderCalculation): Promise<CalculationResponse> {
+  async calculateOrder(_calculation: OrderCalculation): Promise<CalculationResponse> {
     await this.delay();
     return {
       subtotal: 100.00,

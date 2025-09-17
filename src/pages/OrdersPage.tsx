@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Eye, Calendar, Clock, DollarSign, User, MapPin, Filter } from 'lucide-react';
+import { Eye, Calendar, Clock, DollarSign, Filter } from 'lucide-react';
 import { apiClient } from '../api/client';
 import { OrderResponse, OrderStatus, CleanerResponse } from '../types';
 import toast from 'react-hot-toast';
 
-const statusBadge: React.FC<{ status: string }> = ({ status }) => {
+const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case OrderStatus.PENDING_CONFIRMATION:
@@ -60,7 +60,7 @@ export const OrdersPage: React.FC = () => {
   const fetchData = async () => {
     try {
       const [ordersData, cleanersData] = await Promise.all([
-        apiClient.getOrders(filters.status || undefined),
+        apiClient.getOrders(filters.status ? { status: filters.status as OrderStatus } : undefined),
         apiClient.getCleaners()
       ]);
       setOrders(ordersData);
@@ -90,7 +90,7 @@ export const OrdersPage: React.FC = () => {
 
   const handleAssignCleaner = async (orderId: number, cleanerId: number) => {
     try {
-      await apiClient.assignCleaner(orderId, { cleaner_id: cleanerId });
+      await apiClient.assignCleaner({ order_id: orderId, cleaner_id: cleanerId });
       const cleaner = cleaners.find(c => c.id === cleanerId);
       setOrders(orders.map(order => 
         order.id === orderId 
@@ -284,7 +284,7 @@ export const OrdersPage: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <statusBadge status={order.status} />
+                    <StatusBadge status={order.status} />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {order.cleaner ? (
@@ -313,7 +313,7 @@ export const OrdersPage: React.FC = () => {
                     <div className="text-sm text-gray-900">
                       <div className="flex items-center font-medium">
                         <DollarSign className="h-4 w-4 mr-1" />
-                        {order.total_price}
+                        {order.total_amount}
                       </div>
                       <div className="text-gray-500">
                         {order.total_duration_minutes} мин

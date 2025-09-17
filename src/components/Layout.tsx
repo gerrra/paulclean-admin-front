@@ -7,14 +7,15 @@ import {
   Settings, 
   Users, 
   ClipboardList, 
-  Calendar,
   LogOut,
   ChevronDown
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { clsx } from 'clsx';
 
-interface LayoutProps {}
+interface LayoutProps {
+  children?: React.ReactNode;
+}
 
 const navigation = [
   { name: 'Dashboard', href: '/admin/dashboard', icon: Home },
@@ -23,7 +24,7 @@ const navigation = [
   { name: 'Orders', href: '/admin/orders', icon: ClipboardList },
 ];
 
-export const Layout: React.FC<LayoutProps> = ({ children }) => {
+export const Layout: React.FC<LayoutProps> = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { user, logout } = useAuth();

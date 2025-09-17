@@ -5,12 +5,8 @@ import {
   Eye, 
   Users, 
   TrendingUp, 
-  Calendar,
-  DollarSign,
-  Clock,
   CheckCircle,
-  AlertCircle,
-  XCircle
+  AlertCircle
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { apiClient } from '../api/client';
@@ -114,7 +110,7 @@ export const DashboardPage: React.FC = () => {
     return {
       date: new Date(date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' }),
       orders: dayOrders.length,
-      revenue: dayOrders.reduce((sum, order) => sum + order.total_price, 0)
+      revenue: dayOrders.reduce((sum, order) => sum + order.total_amount, 0)
     };
   });
 

@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Eye, EyeOff, Lock, User } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { AdminLoginRequest } from '../types';
 import toast from 'react-hot-toast';
 
 interface LoginFormData {
@@ -14,11 +13,8 @@ interface LoginFormData {
 export const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { login, isAuthenticated } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const from = location.state?.from?.pathname || '/admin/dashboard';
 
   const {
     register,

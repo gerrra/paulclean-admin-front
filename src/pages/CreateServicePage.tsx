@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { ArrowLeft, Save, Plus, Trash2, GripVertical, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Trash2, GripVertical, EyeOff } from 'lucide-react';
 import { apiClient } from '../api/client';
 import { ServiceCreate, PricingOptionCreate, PricingOptionType, FlexibleValueType } from '../types';
 import toast from 'react-hot-toast';
@@ -51,16 +51,12 @@ export const CreateServicePage: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
-    setValue,
   } = useForm<CreateServiceFormData>({
     defaultValues: {
       is_published: false,
       pricingOptions: [],
     }
   });
-
-  const watchedIsPublished = watch('is_published');
 
   const onSubmit = async (data: CreateServiceFormData) => {
     setIsLoading(true);

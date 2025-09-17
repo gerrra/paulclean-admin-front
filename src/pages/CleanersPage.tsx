@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Edit, Trash2, Mail, Phone, User } from 'lucide-react';
 import { apiClient } from '../api/client';
-import { CleanerResponse, ServiceResponse } from '../types';
+import { CleanerResponse, Service } from '../types';
 import toast from 'react-hot-toast';
 
 export const CleanersPage: React.FC = () => {
   const [cleaners, setCleaners] = useState<CleanerResponse[]>([]);
-  const [services, setServices] = useState<ServiceResponse[]>([]);
+  const [services, setServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
@@ -44,7 +44,7 @@ export const CleanersPage: React.FC = () => {
     }
   };
 
-  const getServiceNames = (serviceIds: number[]) => {
+  const getServiceNames = (serviceIds: number[]): string => {
     return serviceIds
       .map(id => services.find(service => service.id === id)?.name)
       .filter(Boolean)

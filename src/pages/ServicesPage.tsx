@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Search, Edit, Trash2, Eye, EyeOff, CheckCircle, XCircle, MoreVertical } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react';
 import { apiClient } from '../api/client';
 import { Service } from '../types';
 import toast from 'react-hot-toast';

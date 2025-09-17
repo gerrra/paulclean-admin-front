@@ -68,6 +68,10 @@ export interface ServiceWithPricingResponse extends Service {
   pricing_options: PricingOption[];
 }
 
+export interface ServiceResponse extends Service {
+  // Alias for Service for backward compatibility
+}
+
 // Pricing option types
 export interface PricingOption {
   id: number;
@@ -348,18 +352,24 @@ export interface BlockOrder {
 export interface CleanerResponse {
   id: number;
   name: string;
+  full_name: string;
   email: string;
   phone: string;
   is_active: boolean;
+  services: number[];
+  calendar_email?: string;
   created_at: string;
   updated_at: string | null;
 }
 
 export interface CleanerCreate {
   name: string;
+  full_name: string;
   email: string;
   phone: string;
   is_active?: boolean;
+  services?: number[];
+  calendar_email?: string;
 }
 
 // Order types
@@ -372,10 +382,24 @@ export interface OrderResponse {
   service_name: string;
   status: OrderStatus;
   total_amount: number;
+  total_price: number;
+  total_duration_minutes: number;
   scheduled_date: string;
   scheduled_time: string;
   address: string;
   notes?: string;
+  client: {
+    full_name: string;
+    email: string;
+    phone: string;
+  };
+  cleaner?: CleanerResponse | null;
+  order_items: Array<{
+    id: number;
+    name: string;
+    quantity: number;
+    price: number;
+  }>;
   created_at: string;
   updated_at: string | null;
 }
