@@ -73,12 +73,16 @@ cd dist
 tar -czf ../admin-frontend.tar.gz .
 cd ..
 
+# Test SSH connection
+log_info "Testing SSH connection..."
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $SERVER_USER@$SERVER_HOST "echo 'SSH connection successful'"
+
 # Upload and deploy
 log_info "Uploading to server..."
-scp admin-frontend.tar.gz $SERVER_USER@$SERVER_HOST:/tmp/
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin-frontend.tar.gz $SERVER_USER@$SERVER_HOST:/tmp/
 
 log_info "Deploying on server..."
-ssh $SERVER_USER@$SERVER_HOST "
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $SERVER_USER@$SERVER_HOST "
     set -e
     
     # Create backup

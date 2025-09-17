@@ -59,15 +59,24 @@ jobs:
         mkdir -p ~/.ssh
         echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
+        chmod 700 ~/.ssh
         ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+        chmod 644 ~/.ssh/known_hosts
+        echo "SSH key setup completed"
+        ls -la ~/.ssh/
+        
+    - name: Test SSH connection
+      run: |
+        echo "Testing SSH connection..."
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "echo 'SSH connection successful'"
         
     - name: Deploy to server
       run: |
         # Upload archive
-        scp admin-frontend.tar.gz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/
+        scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null admin-frontend.tar.gz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/
         
         # Deploy on server
-        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} '
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} '
           set -e
           
           # Create backup
