@@ -36,8 +36,9 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint src --ext .ts,.tsx --report-unused-disable-directives --max-warnings 0",
-    "lint:fix": "eslint src --ext .ts,.tsx --fix"
+    "lint": "eslint src --ext .ts,.tsx --report-unused-disable-directives --max-warnings 0 --debug",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "lint:debug": "eslint src --ext .ts,.tsx --debug --print-config .eslintrc.cjs"
   },
   "browserslist": {
     "production": [

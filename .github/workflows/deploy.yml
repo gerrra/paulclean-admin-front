@@ -20,15 +20,36 @@ jobs:
         cache: 'npm'
         
     - name: Install dependencies
-      run: npm install
-      
+      run: |
+        echo "🔍 Installing dependencies..."
+        npm install
+        echo "✅ Dependencies installed"
+        
+    - name: Debug node_modules
+      run: |
+        echo "🔍 Checking node_modules structure..."
+        ls -la node_modules/ | head -20
+        echo "🔍 Checking for ESLint packages..."
+        ls -la node_modules/@typescript-eslint/ 2>/dev/null || echo "❌ @typescript-eslint not found"
+        ls -la node_modules/eslint-plugin-react/ 2>/dev/null || echo "❌ eslint-plugin-react not found"
+        echo "🔍 Checking package.json dependencies..."
+        cat package.json | grep -A 20 "devDependencies"
+        
     - name: Run linter
       run: |
+        echo "🔍 Running linter with detailed output..."
         # Install ESLint dependencies if not present
         if [ ! -d "node_modules/@typescript-eslint" ] || [ ! -d "node_modules/eslint-plugin-react" ]; then
-          echo "Installing ESLint dependencies..."
+          echo "⚠️ Installing missing ESLint dependencies..."
           npm install @typescript-eslint/eslint-plugin@^6.21.0 @typescript-eslint/parser@^6.21.0 eslint-plugin-react@^7.34.0 eslint-plugin-react-hooks@^4.6.0
+          echo "✅ ESLint dependencies installed"
+        else
+          echo "✅ ESLint dependencies already present"
         fi
+        
+        echo "🔍 Verifying ESLint installation..."
+        npx eslint --version
+        echo "🔍 Running ESLint with debug info..."
         npm run lint
       
     - name: Build application
