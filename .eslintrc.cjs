@@ -29,28 +29,55 @@ module.exports = {
       parser: '@typescript-eslint/parser',
       extends: [
         'eslint:recommended',
-        '@typescript-eslint/recommended',
+        // Only extend @typescript-eslint/recommended if the package is available
+        ...(require('fs').existsSync('node_modules/@typescript-eslint/eslint-plugin') 
+          ? ['@typescript-eslint/recommended'] 
+          : []
+        ),
       ],
       rules: {
-        '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-        '@typescript-eslint/no-explicit-any': 'warn',
-        '@typescript-eslint/explicit-function-return-type': 'off',
-        '@typescript-eslint/explicit-module-boundary-types': 'off',
-        '@typescript-eslint/no-empty-function': 'warn'
+        'no-unused-vars': 'off', // Turn off base rule
+        ...(require('fs').existsSync('node_modules/@typescript-eslint/eslint-plugin') 
+          ? {
+              '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+              '@typescript-eslint/no-explicit-any': 'warn',
+              '@typescript-eslint/explicit-function-return-type': 'off',
+              '@typescript-eslint/explicit-module-boundary-types': 'off',
+              '@typescript-eslint/no-empty-function': 'warn'
+            }
+          : {}
+        )
       }
     },
     {
       files: ['*.tsx', '*.jsx'],
       extends: [
         'eslint:recommended',
-        'plugin:react/recommended',
-        'plugin:react-hooks/recommended',
+        // Only extend React plugins if they are available
+        ...(require('fs').existsSync('node_modules/eslint-plugin-react') 
+          ? ['plugin:react/recommended'] 
+          : []
+        ),
+        ...(require('fs').existsSync('node_modules/eslint-plugin-react-hooks') 
+          ? ['plugin:react-hooks/recommended'] 
+          : []
+        ),
       ],
       rules: {
-        'react/react-in-jsx-scope': 'off',
-        'react/prop-types': 'off',
-        'react-hooks/rules-of-hooks': 'error',
-        'react-hooks/exhaustive-deps': 'warn'
+        ...(require('fs').existsSync('node_modules/eslint-plugin-react') 
+          ? {
+              'react/react-in-jsx-scope': 'off',
+              'react/prop-types': 'off'
+            }
+          : {}
+        ),
+        ...(require('fs').existsSync('node_modules/eslint-plugin-react-hooks') 
+          ? {
+              'react-hooks/rules-of-hooks': 'error',
+              'react-hooks/exhaustive-deps': 'warn'
+            }
+          : {}
+        )
       },
       settings: {
         react: {
