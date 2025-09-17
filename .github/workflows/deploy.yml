@@ -23,7 +23,13 @@ jobs:
       run: npm install
       
     - name: Run linter
-      run: npm run lint
+      run: |
+        # Check if eslint dependencies are installed
+        if [ ! -d "node_modules/@typescript-eslint" ]; then
+          echo "Installing missing ESLint dependencies..."
+          npm install @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint-plugin-react eslint-plugin-react-hooks
+        fi
+        npm run lint
       
     - name: Build application
       run: npm run build
