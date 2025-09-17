@@ -44,13 +44,6 @@ export const CleanersPage: React.FC = () => {
     }
   };
 
-  const getServiceNames = (serviceIds: number[]): string => {
-    return serviceIds
-      .map(id => services.find(service => service.id === id)?.name)
-      .filter(Boolean)
-      .join(', ');
-  };
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">

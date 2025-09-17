@@ -285,8 +285,13 @@ class MockApiClient {
     await this.delay();
     const newCleaner: CleanerResponse = {
       id: mockCleaners.length + 1,
-      ...cleaner,
+      name: cleaner.name,
+      full_name: cleaner.full_name,
+      email: cleaner.email,
+      phone: cleaner.phone,
       is_active: cleaner.is_active || true,
+      services: cleaner.services || [],
+      calendar_email: cleaner.calendar_email,
       created_at: new Date().toISOString(),
       updated_at: null
     };
