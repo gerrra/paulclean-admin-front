@@ -1,0 +1,88 @@
+name: Deploy Admin Frontend
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Run linter
+      run: npm run lint
+      
+    - name: Build application
+      run: npm run build
+      
+    - name: Create deployment archive
+      run: |
+        cd dist
+        tar -czf ../admin-frontend.tar.gz .
+        cd ..
+        
+    - name: Setup SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+        
+    - name: Deploy to server
+      run: |
+        # Upload archive
+        scp admin-frontend.tar.gz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/
+        
+        # Deploy on server
+        ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} '
+          set -e
+          
+          # Create backup
+          BACKUP_DIR="/opt/backups/admin_frontend_$(date +%Y%m%d_%H%M%S)"
+          mkdir -p "$BACKUP_DIR"
+          if [ -d "/var/www/admin.paulcleanwa.com" ]; then
+            cp -r /var/www/admin.paulcleanwa.com/* "$BACKUP_DIR/" 2>/dev/null || true
+            echo "Backup created at $BACKUP_DIR"
+          fi
+          
+          # Stop nginx
+          systemctl stop nginx || true
+          
+          # Clean old version
+          rm -rf /var/www/admin.paulcleanwa.com/*
+          
+          # Extract new version
+          cd /var/www/admin.paulcleanwa.com
+          tar -xzf /tmp/admin-frontend.tar.gz
+          
+          # Set permissions
+          chown -R www-data:www-data /var/www/admin.paulcleanwa.com
+          chmod -R 755 /var/www/admin.paulcleanwa.com
+          
+          # Start nginx
+          systemctl start nginx
+          
+          # Cleanup
+          rm -f /tmp/admin-frontend.tar.gz
+          
+          echo "Deployment completed successfully"
+        '
+        
+    - name: Verify deployment
+      run: |
+        sleep 10
+        curl -f https://admin.paulcleanwa.com || exit 1
+        echo "Deployment verification successful"
