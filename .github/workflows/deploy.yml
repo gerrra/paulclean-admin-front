@@ -37,10 +37,12 @@ jobs:
         
     - name: Run linter
       run: |
-        echo "🔍 Running linter with basic configuration..."
+        echo "🔍 Running linter with TypeScript support..."
+        echo "🔍 Installing TypeScript parser..."
+        npm install @typescript-eslint/parser
         echo "🔍 Verifying ESLint installation..."
         npx eslint --version
-        echo "🔍 Running ESLint with basic rules..."
+        echo "🔍 Running ESLint with TypeScript support..."
         npm run lint
       
     - name: Build application

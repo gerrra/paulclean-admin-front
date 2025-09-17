@@ -57,9 +57,11 @@ log_info "Installing dependencies..."
 npm install
 
 log_info "Running linter..."
+log_info "Installing TypeScript parser..."
+npm install @typescript-eslint/parser
 log_info "Verifying ESLint installation..."
 npx eslint --version
-log_info "Running ESLint with basic rules..."
+log_info "Running ESLint with TypeScript support..."
 npm run lint
 
 log_info "Building application..."
