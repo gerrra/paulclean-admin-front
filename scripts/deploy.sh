@@ -57,10 +57,10 @@ log_info "Installing dependencies..."
 npm install
 
 log_info "Running linter..."
-# Check if eslint dependencies are installed
-if [ ! -d "node_modules/@typescript-eslint" ]; then
-    log_info "Installing missing ESLint dependencies..."
-    npm install @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint-plugin-react eslint-plugin-react-hooks
+# Install ESLint dependencies if not present
+if [ ! -d "node_modules/@typescript-eslint" ] || [ ! -d "node_modules/eslint-plugin-react" ]; then
+    log_info "Installing ESLint dependencies..."
+    npm install @typescript-eslint/eslint-plugin@^6.21.0 @typescript-eslint/parser@^6.21.0 eslint-plugin-react@^7.34.0 eslint-plugin-react-hooks@^4.6.0
 fi
 npm run lint
 
