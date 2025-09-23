@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Plus, Search, Edit, Trash2, Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react';
 import { apiClient } from '../api/client';
 import { Service } from '../types';
+import { ConfirmationDialog } from '../components/ConfirmationDialog';
 import toast from 'react-hot-toast';
 
 export const ServicesPage: React.FC = () => {
@@ -11,6 +12,15 @@ export const ServicesPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
+  const [deleteDialog, setDeleteDialog] = useState<{
+    isOpen: boolean;
+    service: Service | null;
+    isLoading: boolean;
+  }>({
+    isOpen: false,
+    service: null,
+    isLoading: false,
+  });
 
   useEffect(() => {
     loadServices();
@@ -70,19 +80,41 @@ export const ServicesPage: React.FC = () => {
     }
   };
 
-  const handleDeleteService = async (service: Service) => {
-    if (!confirm(`Are you sure you want to delete service "${service.name}"? This action cannot be undone.`)) {
-      return;
-    }
+  const handleDeleteService = (service: Service) => {
+    setDeleteDialog({
+      isOpen: true,
+      service,
+      isLoading: false,
+    });
+  };
+
+  const confirmDeleteService = async () => {
+    if (!deleteDialog.service) return;
+
+    setDeleteDialog(prev => ({ ...prev, isLoading: true }));
 
     try {
-      await apiClient.deleteService(service.id);
-      toast.success(`Service "${service.name}" deleted successfully`);
+      await apiClient.deleteService(deleteDialog.service.id);
+      toast.success(`Service "${deleteDialog.service.name}" deleted successfully`);
       loadServices(); // Reload to get updated data
+      setDeleteDialog({
+        isOpen: false,
+        service: null,
+        isLoading: false,
+      });
     } catch (error: any) {
       console.error('Error deleting service:', error);
       toast.error('Failed to delete service');
+      setDeleteDialog(prev => ({ ...prev, isLoading: false }));
     }
+  };
+
+  const cancelDeleteService = () => {
+    setDeleteDialog({
+      isOpen: false,
+      service: null,
+      isLoading: false,
+    });
   };
 
   const formatDate = (dateString: string) => {
@@ -278,6 +310,19 @@ export const ServicesPage: React.FC = () => {
           Showing {filteredServices.length} of {services.length} services
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmationDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={cancelDeleteService}
+        onConfirm={confirmDeleteService}
+        title="Delete Service"
+        message={`Are you sure you want to delete service "${deleteDialog.service?.name}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={deleteDialog.isLoading}
+      />
     </div>
   );
 };

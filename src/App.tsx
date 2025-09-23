@@ -6,6 +6,7 @@ import { LoginPage } from './pages/LoginPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ServicesPage } from './pages/ServicesPage';
 import { CreateServicePage } from './pages/CreateServicePage';
+import { EditServicePage } from './pages/EditServicePage';
 import { CleanersPage } from './pages/CleanersPage';
 import { OrdersPage } from './pages/OrdersPage';
 import { TestPage } from './pages/TestPage';
@@ -27,6 +28,7 @@ function App() {
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="services" element={<ServicesPage />} />
           <Route path="services/create" element={<CreateServicePage />} />
+          <Route path="services/:id/edit" element={<EditServicePage />} />
           <Route path="cleaners" element={<CleanersPage />} />
           <Route path="orders" element={<OrdersPage />} />
           <Route index element={<Navigate to="/admin/dashboard" replace />} />

@@ -8,9 +8,9 @@ export default defineConfig({
     open: true,
     proxy: {
       '/api': {
-        target: 'https://api.paulcleanwa.com',
+        target: 'http://localhost:8000',
         changeOrigin: true,
-        secure: true
+        secure: false
       }
     }
   },

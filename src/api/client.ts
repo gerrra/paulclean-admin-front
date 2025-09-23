@@ -22,7 +22,8 @@ import {
   CalculationResponse,
   PublicServiceResponse,
   PublicPricingCalculationRequest,
-  ServicePricingResponse
+  ServicePricingResponse,
+  ApiErrorResponse
 } from '../types';
 
 class ApiClient {
@@ -65,6 +66,13 @@ class ApiClient {
           localStorage.removeItem('refresh_token');
           window.location.href = '/admin/login';
         }
+        
+        // Handle new error response format
+        if (error.response?.data?.error) {
+          const apiError: ApiErrorResponse = error.response.data;
+          error.message = apiError.message || error.message;
+        }
+        
         return Promise.reject(error);
       }
     );
@@ -78,7 +86,7 @@ class ApiClient {
 
   // Services - Admin endpoints
   async getServices(): Promise<Service[]> {
-    const response: AxiosResponse<Service[]> = await this.client.get('/admin/services/list');
+    const response: AxiosResponse<Service[]> = await this.client.get('/admin/services');
     return response.data;
   }
 
@@ -88,17 +96,17 @@ class ApiClient {
   }
 
   async createService(service: ServiceCreate): Promise<Service> {
-    const response: AxiosResponse<Service> = await this.client.post('/admin/services/create', service);
+    const response: AxiosResponse<Service> = await this.client.post('/admin/services', service);
     return response.data;
   }
 
   async updateService(id: number, service: ServiceUpdate): Promise<Service> {
-    const response: AxiosResponse<Service> = await this.client.put(`/admin/services/${id}/update`, service);
+    const response: AxiosResponse<Service> = await this.client.put(`/admin/services/${id}`, service);
     return response.data;
   }
 
   async deleteService(id: number): Promise<void> {
-    await this.client.delete(`/admin/services/${id}/delete`);
+    await this.client.delete(`/admin/services/${id}`);
   }
 
   async publishService(id: number): Promise<void> {
@@ -131,6 +139,11 @@ class ApiClient {
 
   async updatePricingOptionsOrder(updates: OptionOrderUpdate[]): Promise<void> {
     await this.client.put('/admin/pricing-options/order', updates);
+  }
+
+  async getPricingBlock(blockId: number): Promise<PricingOptionResponse> {
+    const response: AxiosResponse<PricingOptionResponse> = await this.client.get(`/admin/pricing-blocks/${blockId}`);
+    return response.data;
   }
 
   // Public endpoints

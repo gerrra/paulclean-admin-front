@@ -47,6 +47,17 @@ export interface Service {
   id: number;
   name: string;
   description?: string;
+  category?: string;
+  price_per_removable_cushion?: number;
+  price_per_unremovable_cushion?: number;
+  price_per_pillow?: number;
+  price_per_window?: number;
+  base_surcharge_pct?: number;
+  pet_hair_surcharge_pct?: number;
+  urine_stain_surcharge_pct?: number;
+  accelerated_drying_surcharge?: number;
+  before_image?: string;
+  after_image?: string;
   is_published: boolean;
   created_at: string;
   updated_at?: string | null;
@@ -55,13 +66,35 @@ export interface Service {
 export interface ServiceCreate {
   name: string;
   description?: string;
+  category?: string;
+  price_per_removable_cushion?: number;
+  price_per_unremovable_cushion?: number;
+  price_per_pillow?: number;
+  price_per_window?: number;
+  base_surcharge_pct?: number;
+  pet_hair_surcharge_pct?: number;
+  urine_stain_surcharge_pct?: number;
+  accelerated_drying_surcharge?: number;
+  before_image?: string;
+  after_image?: string;
   is_published?: boolean;
 }
 
 export interface ServiceUpdate {
-  name?: string;
-  description?: string;
-  is_published?: boolean;
+  name?: string;                              // Optional string (3-100 chars)
+  description?: string;                       // Optional string (10-1000 chars)
+  category?: string;                          // Optional string
+  price_per_removable_cushion?: number;       // Optional number (≥0)
+  price_per_unremovable_cushion?: number;     // Optional number (≥0)
+  price_per_pillow?: number;                  // Optional number (≥0)
+  price_per_window?: number;                  // Optional number (≥0)
+  base_surcharge_pct?: number;                // Optional number (≥0)
+  pet_hair_surcharge_pct?: number;            // Optional number (≥0)
+  urine_stain_surcharge_pct?: number;         // Optional number (≥0)
+  accelerated_drying_surcharge?: number;      // Optional number (≥0)
+  before_image?: string;                      // Optional string
+  after_image?: string;                       // Optional string
+  is_published?: boolean;                     // Optional boolean
 }
 
 export interface ServiceWithPricingResponse extends Service {
@@ -346,6 +379,13 @@ export interface PricingBlockUpdate {
 export interface BlockOrder {
   id: number;
   order_index: number;
+}
+
+// Error response type
+export interface ApiErrorResponse {
+  error: string;
+  message: string;
+  status_code: number;
 }
 
 // Cleaner types

@@ -117,32 +117,7 @@ export const CreateServicePage: React.FC = () => {
   };
 
   const addPricingOption = () => {
-    const newOption: PricingOptionFormData = {
-      name: '',
-      option_type: PricingOptionType.PER_UNIT,
-      order_index: pricingOptions.length,
-      is_required: false,
-      is_hidden: false,
-      per_unit_option: {
-        price_per_unit: 0,
-        short_description: '',
-        full_description: '',
-      },
-      selector_option: {
-        short_description: '',
-        full_description: '',
-        options: [{ name: '', price: 0, short_description: '', full_description: '' }],
-      },
-      flexible_value_option: {
-        short_description: '',
-        full_description: '',
-        value_type: FlexibleValueType.PERCENTAGE,
-        value: 0,
-        is_enabled: false,
-      },
-    };
-    setPricingOptions([...pricingOptions, newOption]);
-    setEditingOptionIndex(pricingOptions.length);
+    setEditingOptionIndex(null); // null означает создание новой опции
     setShowPricingOptionModal(true);
   };
 
@@ -164,9 +139,17 @@ export const CreateServicePage: React.FC = () => {
 
   const updatePricingOption = (updatedOption: PricingOptionFormData) => {
     if (editingOptionIndex !== null) {
+      // Редактирование существующей опции
       const updatedOptions = [...pricingOptions];
       updatedOptions[editingOptionIndex] = updatedOption;
       setPricingOptions(updatedOptions);
+    } else {
+      // Создание новой опции
+      const newOption = {
+        ...updatedOption,
+        order_index: pricingOptions.length,
+      };
+      setPricingOptions([...pricingOptions, newOption]);
     }
     setShowPricingOptionModal(false);
     setEditingOptionIndex(null);
@@ -250,6 +233,7 @@ export const CreateServicePage: React.FC = () => {
             )}
           </div>
         </div>
+
 
         {/* Pricing Options */}
         <div className="card">
@@ -401,6 +385,14 @@ const PricingOptionModal: React.FC<PricingOptionModalProps> = ({ option, onSave,
     }
   );
 
+  // Блокируем скролл фона при открытии модального окна
+  React.useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData);
@@ -439,21 +431,30 @@ const PricingOptionModal: React.FC<PricingOptionModalProps> = ({ option, onSave,
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-20 mx-auto p-6 border w-full max-w-2xl shadow-lg rounded-md bg-white">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-medium text-gray-900">
-            {option ? 'Edit Pricing Option' : 'Add Pricing Option'}
-          </h3>
-          <button
-            onClick={onCancel}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            ×
-          </button>
-        </div>
+    <div 
+      className="fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex items-center justify-center"
+      onClick={onCancel}
+    >
+      <div 
+        className="bg-white rounded-lg shadow-lg w-full max-w-2xl max-h-[90vh] flex flex-col mx-4 my-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+          {/* Header */}
+          <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
+            <h3 className="text-lg font-medium text-gray-900">
+              {option ? 'Edit Pricing Option' : 'Add Pricing Option'}
+            </h3>
+            <button
+              onClick={onCancel}
+              className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+            >
+              ×
+            </button>
+          </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto p-6">
+            <form id="pricing-option-form" onSubmit={handleSubmit} className="space-y-6">
           {/* Basic Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -762,8 +763,11 @@ const PricingOptionModal: React.FC<PricingOptionModalProps> = ({ option, onSave,
             </div>
           )}
 
-          {/* Modal Actions */}
-          <div className="flex justify-end space-x-4 pt-6 border-t">
+            </form>
+          </div>
+
+          {/* Footer */}
+          <div className="flex justify-end space-x-4 p-6 border-t border-gray-200 flex-shrink-0">
             <button
               type="button"
               onClick={onCancel}
@@ -773,13 +777,13 @@ const PricingOptionModal: React.FC<PricingOptionModalProps> = ({ option, onSave,
             </button>
             <button
               type="submit"
+              form="pricing-option-form"
               className="btn-primary"
             >
               {option ? 'Update Option' : 'Add Option'}
             </button>
           </div>
-        </form>
+        </div>
       </div>
-    </div>
   );
 };
