@@ -33,8 +33,8 @@ class ApiClient {
   constructor() {
     // Use local proxy in development to avoid CORS issues
     this.baseURL = (import.meta as any).env?.DEV 
-      ? '/api' // This will be proxied by Vite to https://api.paulcleanwa.com/api
-      : 'https://api.paulcleanwa.com';
+      ? '/api' // This will be proxied by Vite to http://localhost:8000/api
+      : 'https://api.paulcleanwa.com/api';
     
     this.client = axios.create({
       baseURL: this.baseURL,
